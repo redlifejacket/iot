@@ -21,24 +21,6 @@ String readCommand() {
   return Serial.readString();
 }
   
-void printChar(String label, char ch) {
-  Serial.print(label + ": [");
-  Serial.print(ch);
-  Serial.println("]");  	
-}
-
-void printInt(String label, int i) {
-  Serial.print(label + ": [");
-  Serial.print(i, DEC);
-  Serial.println("]");  	
-}
-
-void printString(String label, String s) {
-  Serial.print(label);
-  Serial.print(s);
-  Serial.println();  	
-}
-
 void readValues(String str) {
   str.trim();
   int lgth = str.length() + 1;
@@ -103,3 +85,23 @@ void loop() {
   	printString("2. addressValue", addressValue);
   }
 }
+
+// Helper functions
+void printChar(String label, char ch) {
+  Serial.print(label + ": [");
+  Serial.print(ch);
+  Serial.println("]");  	
+}
+
+void printInt(String label, int i) {
+  Serial.print(label + ": [");
+  Serial.print(i, DEC);
+  Serial.println("]");  	
+}
+
+void printString(String label, String s) {
+  Serial.print(label);
+  Serial.print(s);
+  Serial.println();  	
+}
+
