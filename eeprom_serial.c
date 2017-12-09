@@ -111,7 +111,6 @@ void loop() {
   }
 }
 
-// Helper functions
 void printString(String label, String s) {
   Serial.print(label);
   Serial.print(s);
