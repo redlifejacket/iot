@@ -3,6 +3,8 @@
  * Shyam Govardhan
  * Coursera: Interfacing with the Arduino.
  * 8 December 2017
+ * Please access the latest version at:
+ * https://github.com/redlifejacket/iot/tree-save/master/eeprom_serial.c
  */
 
 String command;
