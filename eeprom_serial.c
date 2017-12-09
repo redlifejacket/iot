@@ -1,4 +1,8 @@
 #include <EEPROM.h>
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+
 /*
  * Shyam Govardhan
  * Coursera: Interfacing with the Arduino.
@@ -7,9 +11,11 @@
  * https://github.com/redlifejacket/iot/tree-save/master/eeprom_serial.c
  */
 
-String command;
-int address;
-int addressValue;
+String commandString;
+
+const char *EEPROM_COMMANDS[] = {"read", "write", "invalid"};
+const int READ_PARAMETER_COUNT = 1;
+const int WRITE_PARAMETER_COUNT = 2;
 
 void showPrompt() {
   Serial.println("Please enter a command");
@@ -22,54 +28,68 @@ String readCommand() {
   }
   return Serial.readString();
 }
-  
-void readValues(String str) {
-  str.trim();
-  int lgth = str.length() + 1;
-  char chars[lgth];
-  str.toCharArray(chars, lgth);
-  
-  printString("str", str);
-  printInt("str.length()", str.length());
-  printInt("lgth", lgth);
-  if (lgth == 1) {
-  	addressValue = (int) chars[0];
-    return;
-  }
-  
-  for (int i = 0; i < lgth; i++) {
-    char currentChar = chars[i];
-    char nextChar =  chars[i + 1];
-	printChar("currentChar",  currentChar);
-    printChar("nextChar",  nextChar);
-    if (nextChar == ' ') {
-      address = (int) chars[i];
-    } else if (i = lgth - 1) {
-      addressValue = (int) currentChar;
+
+const char* getEepromCommand(char *str) {
+  int arrayLen = sizeof (EEPROM_COMMANDS) / sizeof (*EEPROM_COMMANDS);
+  for (int i = 0; i < arrayLen; i++) {
+    if (strstr(str, EEPROM_COMMANDS[i]) == str) {
+      return EEPROM_COMMANDS[i];
     }
+  }
+  return NULL;
+}
+
+const int getEepromCommandParameterCount(const char* eepromCommand) {
+  if (strcmp(eepromCommand, EEPROM_COMMANDS[0]) == 0) {
+    return READ_PARAMETER_COUNT + 1;  
+  } else if (strcmp(eepromCommand, EEPROM_COMMANDS[1]) == 0) {
+    return WRITE_PARAMETER_COUNT + 1;
+  } else {
+    printf("Invalid command: %s", eepromCommand);
+    return 0;
   }
 }
 
-boolean isValidCommand(String str) {
-    boolean status = false;
-    if (str.startsWith("read")) {
-      str.remove(0, 4);
-      printString("READ", str);
-      readValues(str);
-      int readVal = EEPROM.read(address);
-      printInt("readVal", readVal);
-      status = true;
-      
-    } else if (str.startsWith("write")) {
-      str.remove(0, 5);
-      printString("WRITE", str);
-      readValues(str);
-      EEPROM.write(address, addressValue);
-      status = true;
-    } 
-  	printString("1. address", address);
-  	printString("1. addressValue", addressValue);
-    return status;
+void accessEeprom(String tokenValues[]) {
+  String commandArg = tokenValues[0];
+  String readCommand = String(EEPROM_COMMANDS[0]);
+  String writeCommand = String(EEPROM_COMMANDS[1]);
+  int eepromAddress = tokenValues[1].toInt();
+  int eepromAddressValue;
+  if (commandArg == readCommand) {
+    eepromAddressValue = EEPROM.read(eepromAddress);
+    Serial.print(commandArg);
+    Serial.print(": EEPROM address [");
+    Serial.print(eepromAddress);
+    Serial.print("] has value set to [");
+    Serial.print(eepromAddressValue, DEC);
+    Serial.println("]");
+  } else   if (commandArg == writeCommand) {
+    eepromAddressValue = tokenValues[2].toInt();
+    EEPROM.write(eepromAddress, eepromAddressValue);
+    Serial.print(commandArg);
+    Serial.print(": Wrote [");
+    Serial.print(eepromAddressValue, DEC);
+    Serial.print("] to EEPROM  address [");
+    Serial.print(eepromAddress);
+    Serial.println("]");
+  }  
+}
+
+void parseTokens(char *str, int maxParts) {
+  char *token;
+  String tokenValues[maxParts];
+  int i = 0;
+  token = strtok (str," ,.-");
+  tokenValues[i++] = String(token);
+  while (token != NULL) {
+    token = strtok (NULL, " ,.-");
+    if (token == NULL) {
+        break;
+    }
+    tokenValues[i++] = String(token);
+  }
+  accessEeprom(tokenValues);
 }
 
 void setup() {
@@ -78,32 +98,22 @@ void setup() {
 }
 
 void loop() {
-  command = readCommand();
-  Serial.println("You entered: " + command);
-  if (! isValidCommand(command)) {
-    printString(command +  ": is NOT a valid command!");
-  } else {
-  	printString("2. address", address);
-  	printString("2. addressValue", addressValue);
+  commandString = readCommand();
+  char charBuf[50];
+  commandString.toCharArray(charBuf, 50);
+  
+  const char* eepromCommand = getEepromCommand(charBuf);
+  if (eepromCommand != NULL) {
+    const int maxParts = getEepromCommandParameterCount(eepromCommand);
+    //printString("commandString: ", commandString);
+    //printString("eepromCommand: ", eepromCommand);
+    parseTokens(charBuf, maxParts + 1);
   }
 }
 
 // Helper functions
-void printChar(String label, char ch) {
-  Serial.print(label + ": [");
-  Serial.print(ch);
-  Serial.println("]");  	
-}
-
-void printInt(String label, int i) {
-  Serial.print(label + ": [");
-  Serial.print(i, DEC);
-  Serial.println("]");  	
-}
-
 void printString(String label, String s) {
   Serial.print(label);
   Serial.print(s);
   Serial.println();  	
 }
-
