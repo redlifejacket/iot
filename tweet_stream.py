@@ -4,12 +4,10 @@
 # Coursera: Interfacing with the Raspberry Pi
 # Week 3 Assignment
 
+from twython import Twython
 from twython import TwythonStreamer
 
 execfile("tweet_init.py")
-
-TRACK_STRING = "Ian G. Harris" 
-NOTIFICATION_STRING = "Ian G. Harris is popular!"
 
 tweetCount = 0
 
@@ -20,7 +18,7 @@ class MyStreamer(TwythonStreamer):
             tweetCount += 1
             print("Found it: tweetCount(%d)" % tweetCount)
         if (tweetCount >= 3):
-            print(NOTIFICATION_STRING)
+            print("Ian G. Harris is popular!")
 
 stream = MyStreamer(c_k, c_s, a_t, a_s)
-stream.statuses.filter(track=TRACK_STRING)
+stream.statuses.filter(track="Ian G. Harris")
