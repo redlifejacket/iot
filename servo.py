@@ -17,9 +17,9 @@ SPEED = 15             # Step interval
 def changeLedBrightness(comment, startDc, endDc, stepDc):
   global SLEEP_INTERVAL
   for dc in range(startDc, endDc, stepDc):
-   pwm.ChangeDutyCycle(dc)
-   print(comment, dc)
-   time.sleep(SLEEP_INTERVAL)
+    pwm.ChangeDutyCycle(dc)
+    print(comment, dc)
+    time.sleep(SLEEP_INTERVAL)
 
 # Main program
 GPIO.setmode(GPIO.BOARD)
