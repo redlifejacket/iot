@@ -13,6 +13,7 @@ DHT_SENSOR_TYPE = 0 # use 0 for the blue-colored sensor and 1 for the white-colo
 LIGHT_SENSOR = 0 # Connect the Grove Light Sensor to analog port A0 # SIG,NC,VCC,GND
 SOUND_SENSOR = 1 # Connect the Grove Sound Sensor to analog port A1 # SIG,NC,VCC,GND
 FLAME_SENSOR = 2 # Connect the Grove Flame Sensor to digital port D2 # SIG,NC,VCC,GND
+BUTTON = 3 # Connect the Grove Button to digital port D3 # SIG,NC,VCC,GND
 LIGHT_THRESHOLD = 10
 SOUND_THRESHOLD = 400
 SLEEP_TIME = 1
@@ -22,7 +23,13 @@ def isFlameDetected():
     return False
   else:
     return True
-    
+
+def doesListContainNan(list):
+  for item in list:
+    if (math.isnan(item)):
+      return True
+  return False
+
 def initFirebase():
   global db
   cred = credentials.Certificate('/home/pi/dev/firestore/edge-iot-core-4ce49598e6ff.json')
@@ -53,14 +60,16 @@ initFirebase()
 grovepi.pinMode(LIGHT_SENSOR,"INPUT")
 grovepi.pinMode(SOUND_SENSOR,"INPUT")
 grovepi.pinMode(FLAME_SENSOR,"INPUT")
+grovepi.pinMode(BUTTON,"INPUT")
 while True:
   try:
     [ tempVal, humidVal ] = dht(DHT_SENSOR_PORT, DHT_SENSOR_TYPE)
     lightVal = grovepi.analogRead(LIGHT_SENSOR)
     soundVal = grovepi.analogRead(SOUND_SENSOR)
     flameVal = grovepi.digitalRead(FLAME_SENSOR)
+    buttonVal = grovepi.digitalRead(BUTTON)
     fireStatus = "TRUE" if (flameVal == 0) else "FALSE"
-    if (math.isnan(tempVal) or math.isnan(humidVal) or math.isnan(lightVal) or math.isnan(soundVal) or math.isnan(flameVal)):
+    if (doesListContainNan((tempVal, humidVal, lightVal, soundVal, flameVal, buttonVal))):
       continue
     print("temperature: [%s]; humidity: [%s]; light: [%d]; sound: [%d]; fire:[%s]" % (tempVal, humidVal, lightVal, soundVal, fireStatus))
     if (isFlameDetected()):
