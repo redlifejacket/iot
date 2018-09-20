@@ -14,10 +14,18 @@ LIGHT_SENSOR = 0 # Connect the Grove Light Sensor to analog port A0 # SIG,NC,VCC
 SOUND_SENSOR = 1 # Connect the Grove Sound Sensor to analog port A1 # SIG,NC,VCC,GND
 FLAME_SENSOR = 2 # Connect the Grove Flame Sensor to digital port D2 # SIG,NC,VCC,GND
 BUTTON = 3 # Connect the Grove Button to digital port D3 # SIG,NC,VCC,GND
+ULTRASONIC_RANGER = 4 # Connect the Grove Ultrasonic Ranger to digital port D4 # SIG,NC,VCC,GND
 LIGHT_THRESHOLD = 10
 SOUND_THRESHOLD = 400
 SLEEP_TIME = 1
 
+def version():
+  write_i2c_block(address, version_cmd + [unused, unused, unused])
+  time.sleep(.1)
+  read_i2c_byte(address)
+  number = read_i2c_block(address)
+  return "%s.%s.%s" % (number[1], number[2], number[3])
+    
 def isFlameDetected():
   if (digitalRead(FLAME_SENSOR)):
     return False
@@ -56,22 +64,26 @@ def setEnv(temp, humidity, lightVal, soundVal, fireStatus):
     u'flame': u'TRUE' if (fireStatus == "TRUE") else u"FALSE"
   })
 
+print("%s" % version())
 initFirebase()
 grovepi.pinMode(LIGHT_SENSOR,"INPUT")
 grovepi.pinMode(SOUND_SENSOR,"INPUT")
 grovepi.pinMode(FLAME_SENSOR,"INPUT")
-grovepi.pinMode(BUTTON,"INPUT")
+#grovepi.pinMode(BUTTON,"INPUT")
 while True:
   try:
     [ tempVal, humidVal ] = dht(DHT_SENSOR_PORT, DHT_SENSOR_TYPE)
     lightVal = grovepi.analogRead(LIGHT_SENSOR)
     soundVal = grovepi.analogRead(SOUND_SENSOR)
     flameVal = grovepi.digitalRead(FLAME_SENSOR)
-    buttonVal = grovepi.digitalRead(BUTTON)
+    buttonVal = 0
+    sonicVal = 0
+    #buttonVal = grovepi.digitalRead(BUTTON)
+    #sonicVal = grovepi.ultrasonicRead(ULTRASONIC_RANGER)
     fireStatus = "TRUE" if (flameVal == 0) else "FALSE"
-    if (doesListContainNan((tempVal, humidVal, lightVal, soundVal, flameVal, buttonVal))):
+    if (doesListContainNan((tempVal, humidVal, lightVal, soundVal, flameVal, buttonVal, sonicVal))):
       continue
-    print("button: [%s]; temperature: [%s]; humidity: [%s]; light: [%d]; sound: [%d]; fire:[%s]" % (buttonVal, tempVal, humidVal, lightVal, soundVal, fireStatus))
+    print("sonic:[%d]; button: [%s]; temperature: [%s]; humidity: [%s]; light: [%d]; sound: [%d]; fire:[%s]" % (sonicVal, buttonVal, tempVal, humidVal, lightVal, soundVal, fireStatus))
     if (buttonVal == 1 or isFlameDetected()):
       setEnv(tempVal, humidVal, lightVal, soundVal, fireStatus)
   #except (IOError, TypeError) as e:
