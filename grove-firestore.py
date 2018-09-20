@@ -53,7 +53,7 @@ def setEnv(temp, humidity, lightVal, soundVal, fireStatus):
     u'resistance': resistance,
     u'brightness': 1 if resistance > LIGHT_THRESHOLD else 0,
     u'loudness': 1 if soundVal > SOUND_THRESHOLD else 0,
-    u'flame': fireStatus
+    u'flame': u'TRUE' if (fireStatus == "TRUE") else u"FALSE"
   })
 
 initFirebase()
@@ -71,9 +71,9 @@ while True:
     fireStatus = "TRUE" if (flameVal == 0) else "FALSE"
     if (doesListContainNan((tempVal, humidVal, lightVal, soundVal, flameVal, buttonVal))):
       continue
-    print("temperature: [%s]; humidity: [%s]; light: [%d]; sound: [%d]; fire:[%s]" % (tempVal, humidVal, lightVal, soundVal, fireStatus))
-    if (isFlameDetected()):
-      setEnv(tempVal, humVal, lightVal, soundVal, fireStatus)
+    print("button: [%s]; temperature: [%s]; humidity: [%s]; light: [%d]; sound: [%d]; fire:[%s]" % (buttonVal, tempVal, humidVal, lightVal, soundVal, fireStatus))
+    if (buttonVal == 1 or isFlameDetected()):
+      setEnv(tempVal, humidVal, lightVal, soundVal, fireStatus)
   #except (IOError, TypeError) as e:
     #print(str(e))
   except KeyboardInterrupt as e:
