@@ -43,7 +43,7 @@ def setEnv(temp, humidity, lightVal, soundVal, fireStatus):
   resistance = 0
   if (lightVal > 0):
     resistance = (float)(1023 - lightVal) * 10 / lightVal
-  print("temp: %s; humidity: %s; lightVal = %d; resistance = %.2f; soundVal: %d; fireStatus = %s" % (temp, humidity, lightVal, resistance, soundVal, fireStatus))
+  #print("temp: %s; humidity: %s; lightVal = %d; resistance = %.2f; soundVal: %d; fireStatus = %s" % (temp, humidity, lightVal, resistance, soundVal, fireStatus))
 
   doc_ref.set({
     u'temperature': temp,
