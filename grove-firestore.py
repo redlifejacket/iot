@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 import future
 import firebase_admin
 from firebase_admin import credentials
@@ -18,13 +18,6 @@ ULTRASONIC_RANGER = 4 # Connect the Grove Ultrasonic Ranger to digital port D4 #
 LIGHT_THRESHOLD = 10
 SOUND_THRESHOLD = 400
 SLEEP_TIME = 1
-
-def version():
-  write_i2c_block(address, version_cmd + [unused, unused, unused])
-  time.sleep(.1)
-  read_i2c_byte(address)
-  number = read_i2c_block(address)
-  return "%s.%s.%s" % (number[1], number[2], number[3])
     
 def isFlameDetected():
   if (digitalRead(FLAME_SENSOR)):
@@ -69,17 +62,15 @@ initFirebase()
 grovepi.pinMode(LIGHT_SENSOR,"INPUT")
 grovepi.pinMode(SOUND_SENSOR,"INPUT")
 grovepi.pinMode(FLAME_SENSOR,"INPUT")
-#grovepi.pinMode(BUTTON,"INPUT")
+grovepi.pinMode(BUTTON,"INPUT")
 while True:
   try:
     [ tempVal, humidVal ] = dht(DHT_SENSOR_PORT, DHT_SENSOR_TYPE)
     lightVal = grovepi.analogRead(LIGHT_SENSOR)
     soundVal = grovepi.analogRead(SOUND_SENSOR)
     flameVal = grovepi.digitalRead(FLAME_SENSOR)
-    buttonVal = 0
-    sonicVal = 0
-    #buttonVal = grovepi.digitalRead(BUTTON)
-    #sonicVal = grovepi.ultrasonicRead(ULTRASONIC_RANGER)
+    buttonVal = grovepi.digitalRead(BUTTON)
+    sonicVal = grovepi.ultrasonicRead(ULTRASONIC_RANGER)
     fireStatus = "TRUE" if (flameVal == 0) else "FALSE"
     if (doesListContainNan((tempVal, humidVal, lightVal, soundVal, flameVal, buttonVal, sonicVal))):
       continue
