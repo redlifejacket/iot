@@ -25,7 +25,7 @@ def isFlameDetected():
     
 def initFirebase():
   global db
-  cred = credentials.Certificate('firestore-certificate.json')
+  cred = credentials.Certificate('/home/pi/dev/firestore/edge-iot-core-4ce49598e6ff.json')
   firebase_admin.initialize_app(cred)
   db = firestore.client()
 
@@ -55,16 +55,16 @@ grovepi.pinMode(SOUND_SENSOR,"INPUT")
 grovepi.pinMode(FLAME_SENSOR,"INPUT")
 while True:
   try:
-    [ temp, hum ] = dht(DHT_SENSOR_PORT, DHT_SENSOR_TYPE)
+    [ tempVal, humidVal ] = dht(DHT_SENSOR_PORT, DHT_SENSOR_TYPE)
     lightVal = grovepi.analogRead(LIGHT_SENSOR)
     soundVal = grovepi.analogRead(SOUND_SENSOR)
     flameVal = grovepi.digitalRead(FLAME_SENSOR)
     fireStatus = "TRUE" if (flameVal == 0) else "FALSE"
-    print("light: [%d]; sound: [%d]; fire:[%s]" % (lightVal, soundVal, fireStatus))
-    if (math.isnan(temp) or math.isnan(hum) or math.isnan(lightVal) or math.isnan(soundVal) or math.isnan(flameVal)):
+    if (math.isnan(tempVal) or math.isnan(humidVal) or math.isnan(lightVal) or math.isnan(soundVal) or math.isnan(flameVal)):
       continue
+    print("temperature: [%s]; humidity: [%s]; light: [%d]; sound: [%d]; fire:[%s]" % (tempVal, humidVal, lightVal, soundVal, fireStatus))
     if (isFlameDetected()):
-      setEnv(temp, hum, lightVal, soundVal, fireStatus)
+      setEnv(tempVal, humVal, lightVal, soundVal, fireStatus)
   #except (IOError, TypeError) as e:
     #print(str(e))
   except KeyboardInterrupt as e:
